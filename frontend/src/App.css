@@ -1,0 +1,281 @@
+/* =========================================
+   1. KHỞI TẠO & BIẾN MÀU SẮC
+========================================= */
+* {
+  box-sizing: border-box; /* BẮT BUỘC để padding không làm tràn viền ngang */
+}
+
+body, html {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden; /* Chặn cuộn ngang vĩnh viễn */
+}
+
+/* Light Mode */
+:root {
+  --bg-main: #f0f2f5;
+  --text-main: #1a1a1a;
+  --title-color: #007bff;
+  --panel-bg: #ffffff;
+  --panel-border: #cccccc;
+  --btn-bg: #007bff;
+  --btn-hover: #0056b3;
+  --file-btn-bg: #e9ecef;
+  --file-btn-text: #333;
+  --rc-border: #878686;
+  --rc-bg: #7e7e7e;
+  --rc-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  --overlay-bg: rgba(255, 255, 255, 0.85);
+  --spinner-color: #007bff;
+}
+
+/* Dark Mode */
+.dark-mode {
+  --bg-main: #0d0d0d;
+  --text-main: #ffffff;
+  --title-color: #ff4d4d;
+  --panel-bg: linear-gradient(145deg, #1c0a0a, #0a0000);
+  --panel-border: #4d1313;
+  --btn-bg: linear-gradient(90deg, #8b0000 0%, #ff1a1a 100%);
+  --btn-hover: linear-gradient(90deg, #a30000 0%, #ff3333 100%);
+  --file-btn-bg: #333;
+  --file-btn-text: #fff;
+  --rc-border: #8b0000;
+  --rc-bg: linear-gradient(180deg, #1a0505 0%, #000000 100%);
+  --rc-shadow: 0 4px 20px rgba(255, 0, 0, 0.15);
+  --overlay-bg: rgba(15, 0, 0, 0.85);
+  --spinner-color: #ff3333;
+}
+
+/* =========================================
+   2. GIAO DIỆN TỔNG THỂ & CONTAINER
+========================================= */
+.app-wrapper {
+  min-height: 100vh;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  transition: background-color 0.4s, color 0.4s;
+  position: relative;
+  padding-top: 40px; /* Nhường chỗ cho nút đổi Theme */
+}
+
+.app-container {
+  padding: 20px;
+  /* Thay vì 70% hay 1100px, hãy để nó chiếm gần hết màn hình */
+  width: 95%; 
+  max-width: 1600px; /* Tăng giới hạn để phù hợp với màn hình Laptop lớn */
+  
+  /* Đảm bảo App luôn nằm giữa */
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  /* Thêm dòng này để tận dụng chiều cao màn hình */
+  min-height: 90vh; 
+}
+
+h1 {
+  text-align: center;
+  font-size: 20px;
+  color: var(--title-color);
+  margin-bottom: 30px;
+  font-size: clamp(1.5rem, 4vw, 2rem); /* Chữ tự động nhỏ lại trên điện thoại */
+}
+
+/* Nút đổi Theme */
+.theme-toggle-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: transparent;
+  color: var(--text-main);
+  border: 1px solid var(--panel-border);
+  padding: 8px 15px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  transition: all 0.3s;
+  z-index: 100;
+}
+
+.theme-toggle-btn:hover {
+  background: var(--panel-border);
+}
+
+/* =========================================
+   3. KHUNG HIỂN THỊ ẢNH & PLACEHOLDER
+========================================= */
+.result-container {
+  order: 1; 
+  position: relative; 
+  width: 100%; /* Đảm bảo bằng đúng cha của nó, không lồi ra */
+  min-height: 300px; /* Thu nhỏ min-height một chút cho vừa điện thoại */
+  
+  /* Dùng flex để tự động căn giữa chữ Placeholder hoặc ảnh bị thiếu tỷ lệ */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden; /* Cắt phần ảnh thừa nếu có */
+
+  border: 2px solid var(--rc-border);
+  border-radius: 12px;
+  padding: 10px;
+  background: var(--rc-bg);
+  box-shadow: var(--rc-shadow);
+}
+
+.displayed-image {
+  max-width: 100%;
+  max-height: 70vh; /* Không để ảnh cao quá màn hình gây cuộn mỏi tay */
+  object-fit: contain; /* Ép ảnh giữ tỷ lệ, không bị méo */
+  border-radius: 8px;
+}
+
+.preview-mode {
+  opacity: 0.6;
+  filter: grayscale(20%);
+}
+
+/* Khối Placeholder chờ ảnh */
+.placeholder-text {
+  text-align: center;
+  color: #777;
+}
+
+.placeholder-icon {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 10px;
+  opacity: 0.7;
+}
+
+.placeholder-text p {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 0 0 5px 0;
+  color: var(--text-main);
+}
+
+/* =========================================
+   4. BẢNG ĐIỀU KHIỂN (RESPONSIVE)
+========================================= */
+.control-panel {
+  order: 2; 
+  margin-top: 20px;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  
+  /* Mặc định trên PC: 3 cột ngang */
+  display: grid;
+  grid-template-columns: auto 1fr auto; /* Mô hình | File (rộng) | Nút Nhận diện */
+  align-items: center;
+  gap: 15px;
+}
+
+.model-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.control-panel select {
+  background-color: transparent;
+  color: var(--text-main);
+  border: 1px solid var(--panel-border);
+  padding: 8px 12px;
+  border-radius: 6px;
+  outline: none;
+  cursor: pointer;
+}
+
+.control-panel input[type="file"] {
+  color: var(--text-main);
+  max-width: 100%; /* Rất quan trọng để input file không làm tràn màn hình đt */
+}
+
+.control-panel input[type="file"]::file-selector-button {
+  background: var(--file-btn-bg);
+  color: var(--file-btn-text);
+  border: 1px solid var(--panel-border);
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-right: 15px;
+  transition: all 0.3s;
+}
+
+.detect-btn {
+  /* Bỏ grid-column: 1 / -1 đi để nó nằm cùng hàng trên PC */
+  padding: 14px 25px;
+  background: var(--btn-bg);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  white-space: nowrap; /* Không cho chữ rớt dòng */
+}
+
+.detect-btn:hover:not(:disabled) {
+  background: var(--btn-hover);
+  transform: translateY(-2px);
+}
+
+.detect-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* =========================================
+   5. HIỆU ỨNG LOADING (GIỮ NGUYÊN)
+========================================= */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.spinner-small { border: 3px solid rgba(255, 255, 255, 0.3); border-top: 3px solid #ffffff; border-radius: 50%; width: 18px; height: 18px; animation: spin 1s linear infinite; }
+.loading-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--overlay-bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; border-radius: 10px; }
+.spinner-large { border: 6px solid rgba(150, 150, 150, 0.2); border-top: 6px solid var(--spinner-color); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-bottom: 15px; }
+
+
+/* =========================================
+   6. MEDIA QUERIES ĐIỆN THOẠI & TABLET
+========================================= */
+@media (max-width: 768px) {
+  .control-panel {
+    /* Chuyển grid ngang thành cột dọc trên điện thoại */
+    display: flex;
+    flex-direction: column;
+    align-items: stretch; /* Kéo giãn các nút cho bằng viền */
+    gap: 15px;
+  }
+  
+  .model-selector {
+    justify-content: space-between; /* Đẩy chữ "Mô hình" sang trái, select sang phải */
+  }
+  
+  .control-panel select {
+    flex-grow: 1; /* Cột chọn mô hình dãn dài ra */
+    margin-left: 10px;
+  }
+  
+  .control-panel input[type="file"] {
+    width: 100%;
+  }
+
+  .detect-btn {
+    width: 100%; /* Nút nhận diện to đùng dễ bấm trên đt */
+    padding: 16px;
+  }
+}
